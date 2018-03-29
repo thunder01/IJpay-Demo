@@ -2,20 +2,17 @@ package com.ijpay.controller.wxpay;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ijpay.entity.Goods;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import com.alibaba.fastjson.JSON;
 import com.google.zxing.BarcodeFormat;
@@ -37,10 +34,13 @@ import com.jpay.weixin.api.WxPayApiConfigKit;
 import com.wechat.config.WechatMpProperties;
 
 @Controller
+@CrossOrigin(origins = "*",maxAge = 3600)
 @RequestMapping("/wxpay")
 public class WxPayController extends WxPayApiController {
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 	private AjaxResult result = new AjaxResult();
+
+	private HashSet set=new HashSet();
 
 	@Autowired
 	WxPayBean wxPayBean;
@@ -83,7 +83,7 @@ public class WxPayController extends WxPayApiController {
 	@RequestMapping("/getKey")
 	@ResponseBody
 	public String getKey(){
-		return WxPayApi.getsignkey(wxPayBean.getAppId(), wxPayBean.getPartnerKey());
+		return WxPayApi.getsignkey(wxPayBean.getMchId(), wxPayBean.getPartnerKey());
 	}
 	@RequestMapping("/ctp")
 	@ResponseBody
@@ -97,7 +97,7 @@ public class WxPayController extends WxPayApiController {
 	 * 注意：必须再web页面中发起支付且域名已添加到开发配置中
 	 */
 	@RequestMapping(value ="/wapPay",method = {RequestMethod.POST,RequestMethod.GET})
-	public void wapPay(HttpServletRequest request,HttpServletResponse response){
+	public String wapPay(HttpServletRequest request,HttpServletResponse response){
 		String ip = IpKit.getRealIp(request);
 		if (StrKit.isBlank(ip)) {
 			ip = "127.0.0.1";
@@ -117,18 +117,21 @@ public class WxPayController extends WxPayApiController {
 				.setAttach("IJPay H5支付测试  -By Javen")
 				.setBody("IJPay H5支付测试  -By Javen")
 				.setSpbillCreateIp(ip)
-				.setTotalFee("520")
+				.setTotalFee("0.01")
 				.setTradeType(TradeType.MWEB)
 				.setNotifyUrl(notify_url)
 				.setOutTradeNo(String.valueOf(System.currentTimeMillis()))
 				.setSceneInfo(h5_info.toString())
 				.build();
-		
+
+		/**请求微信的统一下单接口*/
 		String xmlResult = WxPayApi.pushOrder(false,params);
-log.info(xmlResult);
+		log.info(xmlResult);
 		Map<String, String> result = PaymentKit.xmlToMap(xmlResult);
-		
+
+		/**返回状态码，置为SUCCESS时才有其他数据返回*/
 		String return_code = result.get("return_code");
+		/**签名校验结果，如果非空，说明校验失败*/
 		String return_msg = result.get("return_msg");
 		if (!PaymentKit.codeIsOK(return_code)) {
 			log.error("return_code>"+return_code+" return_msg>"+return_msg);
@@ -150,6 +153,8 @@ log.info(xmlResult);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+		return "支付完成";
 	}
 	
 	
@@ -160,9 +165,11 @@ log.info(xmlResult);
 	@ResponseBody
 	public AjaxResult webPay(HttpServletRequest request,HttpServletResponse response,
 			@RequestParam("total_fee") String total_fee) {
-		// openId，采用 网页授权获取 access_token API：SnsAccessTokenApi获取
+		System.out.println("总钱数"+total_fee);
+		// openId，采用网页授权获取 access_token API：SnsAccessTokenApi获取
 		String openId = (String) request.getSession().getAttribute("openId");
-		
+		openId="own_s02iscYjMmuN43mEolNrX12Y";
+
 		if (StrKit.isBlank(openId)) {
 			result.addError("openId is null");
 			return result;
@@ -189,7 +196,7 @@ log.info(xmlResult);
 				.build();
 		
 		String xmlResult = WxPayApi.pushOrder(false,params);
-log.info(xmlResult);
+		log.info(xmlResult);
 		Map<String, String> resultMap = PaymentKit.xmlToMap(xmlResult);
 		
 		String return_code = resultMap.get("return_code");
@@ -360,14 +367,15 @@ log.info(xmlResult);
 	 */
 	@RequestMapping(value ="/scanCode2",method = {RequestMethod.POST,RequestMethod.GET})
 	@ResponseBody
-	public AjaxResult scanCode2(HttpServletRequest request,HttpServletResponse response,
-			@RequestParam("total_fee") String total_fee) {
-		
-//		String openId="o5NJx1dVRilQI6uUVSaBDuLnM3iM";
+	public AjaxResult scanCode2(HttpServletRequest request, HttpServletResponse response,
+								@RequestParam(value = "total_fee",required = false) String total_fee,
+								@RequestBody Goods goods) {
+		request.getSession().setAttribute("openId","own_s02iscYjMmuN43mEolNrX12Y");
 
 		String openId = (String) request.getSession().getAttribute("openId");
 		
-		
+		total_fee=goods.getPrice()+"";
+
 		if (StrKit.isBlank(openId)) {
 			result.addError("openId is null");
 			return result;
@@ -383,11 +391,11 @@ log.info(xmlResult);
 		}
 		
 		Map<String, String> params = WxPayApiConfigKit.getWxPayApiConfig()
-				.setAttach("IJPay 测试  -By Javen")
-				.setBody("IJPay 扫码支付2测试  -By Javen")
+				.setAttach("XXX购物商城")
+				.setBody(goods.getName())
 				.setOpenId(openId)
 				.setSpbillCreateIp(ip)
-				.setTotalFee(total_fee)
+				.setTotalFee(goods.getPrice()+"")
 				.setTradeType(TradeType.NATIVE)
 				.setNotifyUrl(notify_url)
 				.setOutTradeNo(String.valueOf(System.currentTimeMillis()))
@@ -395,7 +403,7 @@ log.info(xmlResult);
 		
 		String xmlResult = WxPayApi.pushOrder(false,params);
 		
-log.info(xmlResult);
+		log.info(xmlResult);
 		Map<String, String> resultMap = PaymentKit.xmlToMap(xmlResult);
 		
 		String return_code = resultMap.get("return_code");
@@ -613,7 +621,7 @@ log.info("最新返回apk的参数:"+jsonStr);
 				if (("SUCCESS").equals(result_code)) {
 					//更新订单信息
 					log.warn("更新订单信息:"+attach);
-					//发送通知等
+					//商户处理后同步返回给微信参数：
 					Map<String, String> xml = new HashMap<String, String>();
 					xml.put("return_code", "SUCCESS");
 					xml.put("return_msg", "OK");

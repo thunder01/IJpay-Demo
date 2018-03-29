@@ -39,9 +39,11 @@ public class IndexController {
     	return "欢迎使用IJPay 开发加群148540125交流 -By Javen";
     }
     @RequestMapping("/toOauth")
-    public void toOauth(HttpServletResponse response){
+    public void toOauth(HttpServletResponse response,@RequestParam("state")String state){
     	try {
-        	String url = wxService.oauth2buildAuthorizationUrl("http://qy.javen.1mfy.cn/oauth", WxConsts.OAUTH2_SCOPE_USER_INFO, "123");
+    	    //这是ijpay开发者搭的服务器，我们验证需要自己搭服务器
+            //访问这个地址到授权页面，授权后获取code
+        	String url = wxService.oauth2buildAuthorizationUrl("http://qy.javen.1mfy.cn/oauth", WxConsts.OAUTH2_SCOPE_USER_INFO, state);
 			response.sendRedirect(url);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -49,15 +51,17 @@ public class IndexController {
     }
     
     @RequestMapping(value = "/oauth",method = RequestMethod.GET)
-    public ModelAndView oauth(HttpServletRequest request,HttpServletResponse response,@RequestParam("code") String code,@RequestParam("state") String state){
+    public ModelAndView oauth(HttpServletRequest request,HttpServletResponse response,
+                              @RequestParam(value = "code",required = true)String code){
     	try {
 			WxMpOAuth2AccessToken wxMpOAuth2AccessToken = wxService.oauth2getAccessToken(code);
 			WxMpUser wxMpUser = wxService.oauth2getUserInfo(wxMpOAuth2AccessToken, null);
 			logger.info("授权获取到的用户信息："+JsonUtils.toJson(wxMpUser));
 			String openId = wxMpUser.getOpenId();
-			request.getSession().setAttribute("openId", openId);
+            request.getSession().setAttribute("openId", openId);
 			return new ModelAndView("redirect:/towxpay");
-		} catch (WxErrorException e) {
+
+        } catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -72,6 +76,7 @@ public class IndexController {
     public String towxpay() {
 		return "wxpay.html";
 	}
+
     @RequestMapping("/towxsubpay")
 	public String towxsubpay() {
 		return "wxsubpay.html";
