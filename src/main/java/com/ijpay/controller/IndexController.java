@@ -1,6 +1,9 @@
 package com.ijpay.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,22 +31,22 @@ import me.chanjar.weixin.mp.bean.result.WxMpUser;
 @Controller
 public class IndexController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     private WxMpService wxService;
-    
+
     @RequestMapping("")
     @ResponseBody
     public String index(){
     	logger.info("欢迎使用IJPay 开发加群148540125交流 -By Javen");
     	return "欢迎使用IJPay 开发加群148540125交流 -By Javen";
     }
+
     @RequestMapping("/toOauth")
     public void toOauth(HttpServletResponse response,@RequestParam("state")String state){
     	try {
-    	    //这是ijpay开发者搭的服务器，我们验证需要自己搭服务器
             //访问这个地址到授权页面，授权后获取code
-        	String url = wxService.oauth2buildAuthorizationUrl("http://qy.javen.1mfy.cn/oauth", WxConsts.OAUTH2_SCOPE_USER_INFO, state);
+        	String url = wxService.oauth2buildAuthorizationUrl("https://yx.hxygf.cn/oauth", WxConsts.OAUTH2_SCOPE_USER_INFO, state);
 			response.sendRedirect(url);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -81,9 +84,7 @@ public class IndexController {
 	public String towxsubpay() {
 		return "wxsubpay.html";
 	}
-    
-    
-    
+
     @RequestMapping(value = "/pay_input_money")
     public ModelAndView pay_input_money(){
     	 ModelAndView mav = new ModelAndView("pay_input_money.html");
@@ -120,13 +121,11 @@ public class IndexController {
     public String param(@RequestParam("id") Integer xx){
         return  "id>"+xx;
     }
+
     //设置默认值
     @RequestMapping(value = "/xxx",method = RequestMethod.GET)
     @ResponseBody
     public String param2(@RequestParam(value = "id",required = false ,defaultValue = "2") Integer xx){
         return  "id>"+xx;
     }
-
-
-
 }

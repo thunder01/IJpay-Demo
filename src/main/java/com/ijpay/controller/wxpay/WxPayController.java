@@ -165,10 +165,9 @@ public class WxPayController extends WxPayApiController {
 	@ResponseBody
 	public AjaxResult webPay(HttpServletRequest request,HttpServletResponse response,
 			@RequestParam("total_fee") String total_fee) {
-		System.out.println("总钱数"+total_fee);
+
 		// openId，采用网页授权获取 access_token API：SnsAccessTokenApi获取
 		String openId = (String) request.getSession().getAttribute("openId");
-		openId="own_s02iscYjMmuN43mEolNrX12Y";
 
 		if (StrKit.isBlank(openId)) {
 			result.addError("openId is null");
@@ -368,13 +367,8 @@ public class WxPayController extends WxPayApiController {
 	@RequestMapping(value ="/scanCode2",method = {RequestMethod.POST,RequestMethod.GET})
 	@ResponseBody
 	public AjaxResult scanCode2(HttpServletRequest request, HttpServletResponse response,
-								@RequestParam(value = "total_fee",required = false) String total_fee,
-								@RequestBody Goods goods) {
-		request.getSession().setAttribute("openId","own_s02iscYjMmuN43mEolNrX12Y");
-
+								@RequestParam(value = "total_fee",required = false) String total_fee) {
 		String openId = (String) request.getSession().getAttribute("openId");
-		
-		total_fee=goods.getPrice()+"";
 
 		if (StrKit.isBlank(openId)) {
 			result.addError("openId is null");
@@ -392,10 +386,10 @@ public class WxPayController extends WxPayApiController {
 		
 		Map<String, String> params = WxPayApiConfigKit.getWxPayApiConfig()
 				.setAttach("XXX购物商城")
-				.setBody(goods.getName())
+				.setBody("扫码支付测试模式2 测试，"+total_fee+"分")
 				.setOpenId(openId)
 				.setSpbillCreateIp(ip)
-				.setTotalFee(goods.getPrice()+"")
+				.setTotalFee(total_fee)
 				.setTradeType(TradeType.NATIVE)
 				.setNotifyUrl(notify_url)
 				.setOutTradeNo(String.valueOf(System.currentTimeMillis()))
@@ -615,6 +609,7 @@ log.info("最新返回apk的参数:"+jsonStr);
 //		String err_code_des      = params.get("err_code_des");
 		// 注意重复通知的情况，同一订单号可能收到多次通知，请注意一定先判断订单状态
 		// 避免已经成功、关闭、退款的订单被再次更新
+		// 从数据库查询订单，若已存在则返回空，不存在则返回SUCCESS
 //		Order order = Order.dao.getOrderByTransactionId(transaction_id);
 //		if (order==null) {
 			if(PaymentKit.verifyNotify(params, WxPayApiConfigKit.getWxPayApiConfig().getPaternerKey())){
