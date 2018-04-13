@@ -610,7 +610,7 @@ log.info("最新返回apk的参数:"+jsonStr);
 		// 注意重复通知的情况，同一订单号可能收到多次通知，请注意一定先判断订单状态
 		// 避免已经成功、关闭、退款的订单被再次更新
 		// 从数据库查询订单，若已存在则返回空，不存在则返回SUCCESS
-//		Order order = Order.dao.getOrderByTransactionId(transaction_id);
+//		OrderDao order = OrderDao.dao.getOrderByTransactionId(transaction_id);
 //		if (order==null) {
 			if(PaymentKit.verifyNotify(params, WxPayApiConfigKit.getWxPayApiConfig().getPaternerKey())){
 				if (("SUCCESS").equals(result_code)) {

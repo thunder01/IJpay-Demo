@@ -1,6 +1,31 @@
+#spring配置
 spring:
   profiles:
     active: dev
+
+  datasource:
+      driver-class-name: com.mysql.jdbc.Driver
+      url: jdbc:mysql://127.0.0.1:3306/ordersystem
+      username: root
+      password: 123456
+      type: com.alibaba.druid.pool.DruidDataSource
+      connectionProperties: druid.stat.mergeSql=true
+
+  http:
+    encoding:
+      force: true
+      enabled: true
+      charset: utf-8
+
+mybatis:
+  #实体类所做包
+  type-aliases-package: com.order.entity
+  #mapper.xml所在位置
+  mapper-locations: classpath:mybatis/mappers/*.xml
+  #mybatis配置文件
+  config-location:  classpath:mybatis/mybatis-config.xml
+
+#日志配置
 logging:
   file: ijpay.log
   level: debug
