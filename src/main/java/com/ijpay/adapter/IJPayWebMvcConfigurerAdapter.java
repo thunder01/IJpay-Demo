@@ -3,7 +3,6 @@ package com.ijpay.adapter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-
 import com.ijpay.interceptor.AliPayInterceptor;
 import com.ijpay.interceptor.CharacterEncodInterceptor;
 import com.ijpay.interceptor.WxPayInterceptor;

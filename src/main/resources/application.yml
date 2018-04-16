@@ -11,6 +11,18 @@ spring:
       type: com.alibaba.druid.pool.DruidDataSource
       connectionProperties: druid.stat.mergeSql=true
 
+  #hibernate配置
+  jpa:
+    database: mysql
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+      naming:
+        strategy: org.springframework.boot.orm.jpa.hibernate.SpringNamingStrategy
+    properties:
+      hibernate:
+      dialect: org.hibernate.dialect.MySQL5Dialect
+
   http:
     encoding:
       force: true
@@ -18,7 +30,7 @@ spring:
       charset: utf-8
 
 mybatis:
-  #实体类所做包
+  #实体类所在的包
   type-aliases-package: com.order.entity
   #mapper.xml所在位置
   mapper-locations: classpath:mybatis/mappers/*.xml

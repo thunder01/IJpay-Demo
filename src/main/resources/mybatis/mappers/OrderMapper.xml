@@ -3,7 +3,39 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.order.dao.OrderDao">
+    <resultMap id="orderMap" type="Order">
+        <id property="id" column="id"/>
+        <result property="chargeId" column="charge_id"/>
+        <result property="machineNo" column="machine_no"/>
+        <result property="openid" column="openid"/>
+        <result property="orderNo" column="order_no"/>
+        <result property="orderStatus" column="order_status"/>
+        <result property="payChannel" column="pay_channel"/>
+        <result property="outTradeNo" column="out_trade_no"/>
+        <result property="energyNum" column="energy_num"/>
+        <result property="energySum" column="energy_sum"/>
+        <result property="orderSum" column="order_sum"/>
+        <result property="createtime" column="createtime"/>
+        <result property="paytime" column="paytime"/>
+        <result property="openBill" column="open_bill"/>
+        <result property="billNum" column="bill_num"/>
+    </resultMap>
+
     <select id="getName" resultType="String">
         SELECT * FROM table_order
     </select>
+
+    <!--生成订单-->
+    <insert id="createOrder" parameterType="Order">
+        INSERT INTO TABLE_ORDER(charge_id,machine_no,openid,order_no,order_status,pay_channel,out_trade_no,energy_num,energy_sum,order_sum,createtime,paytime,open_bill,bill_num)
+        VALUES (#{chargeId},#{machineNo},#{openid},#{orderNo},#{orderStatus},#{payChannel},#{outTradeNo},#{energyNum},#{energySum},#{orderSum},NOW(),NOW(),#{openBill},#{billNum})
+    </insert>
+
+    <!--取消订单-->
+
+    <!--查询全部订单-->
+
+    <!--查询已完成订单-->
+
+    <!--查询已取消订单-->
 </mapper>

@@ -6,7 +6,6 @@ import org.springframework.boot.web.servlet.ErrorPage;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
-
 import com.jfinal.template.ext.spring.JFinalViewResolver;
 
 @Configuration
