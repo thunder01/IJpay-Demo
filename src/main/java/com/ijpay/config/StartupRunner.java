@@ -6,14 +6,21 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import com.jpay.unionpay.SDKConfig;
 
+/**
+ * 启动任务
+ * 加载支付相关配置
+ * */
 @Order(1)
 public class StartupRunner implements CommandLineRunner {
 	private static final Logger logger = LoggerFactory.getLogger(StartupRunner.class);
 	@Override
 	public void run(String... args) throws Exception {
 		 logger.info("startup runner");
-		 //银联加载配置
-		 SDKConfig.getConfig().loadPropertiesFromSrc();// 从classpath加载acp_sdk.properties文件
+		 /**
+		 * 银联加载配置
+		 * 从classpath加载acp_sdk.properties文件
+		 */
+		 SDKConfig.getConfig().loadPropertiesFromSrc();//
 	}
 
 }

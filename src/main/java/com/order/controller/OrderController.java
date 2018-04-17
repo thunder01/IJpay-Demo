@@ -1,11 +1,13 @@
 package com.order.controller;
 
-import com.order.dao.OrderDao;
 import com.order.entity.Order;
 import com.order.repository.OrderRepository;
+import com.order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.*;
+
+import java.awt.print.Pageable;
 
 /**
  * @author 冯志宇 2018/4/13
@@ -13,16 +15,41 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class OrderController {
     @Autowired
-    private OrderRepository repository;
+    private OrderService orderService;
 
-    @GetMapping("/save")
-    public Order saveOrder(){
+    @GetMapping("/test")
+    public boolean test(){
         Order order=new Order();
         order.setMachineNo("123345678");
         order.setOpenid("1240000000");
         order.setChargeId(100);
+        boolean flag = orderService.cancelOrder(8);
+        return flag;
+    }
 
-        Order save = repository.save(order);
-        return save;
+    /**
+     * 生成订单
+     * */
+    @PostMapping(value = "/saveOrder")
+    public boolean saveOrder(@RequestBody Order order){
+        return orderService.save(order);
+    }
+
+    /**
+     * 全部订单
+     * @param pageNum 当前页
+     * @param pageSize 每页条数
+     * */
+    @GetMapping(value = "/getAllOrder/{pageNum}/{pageSize}")
+    public Page<Order> getAllOrder(@PathVariable("pageNum")int pageNum,
+                                   @PathVariable("pageSize")int pageSize){
+        return orderService.getAllOrder(pageNum,pageSize);
+    }
+
+    @GetMapping(value = "/getByStatus/{pageNum}/{pageSize}/{status}")
+    public Page<Order> getByStatus(@PathVariable("pageNum")int pageNum,
+                                   @PathVariable("pageSize")int pageSize,
+                                   @PathVariable("status") int status){
+        return orderService.getByOrderStatus(pageNum,pageSize,status);
     }
 }

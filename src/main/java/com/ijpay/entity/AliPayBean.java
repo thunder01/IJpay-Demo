@@ -4,6 +4,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
+/**
+ * 支付宝支付配置
+ * spring容器注入此bean时，自动从alipay.properties文件加载配置
+ * */
 @Component
 @PropertySource("classpath:/production/alipay.properties")
 @ConfigurationProperties(prefix = "alipay")
@@ -46,8 +50,6 @@ public class AliPayBean {
         this.serverUrl = serverUrl;
     }
 
-    
-
 	public String getDomain() {
 		return domain;
 	}
@@ -62,5 +64,4 @@ public class AliPayBean {
 				+ serverUrl + ", domain=" + domain + "]";
 	}
 
-	
 }

@@ -29,14 +29,6 @@ spring:
       enabled: true
       charset: utf-8
 
-mybatis:
-  #实体类所在的包
-  type-aliases-package: com.order.entity
-  #mapper.xml所在位置
-  mapper-locations: classpath:mybatis/mappers/*.xml
-  #mybatis配置文件
-  config-location:  classpath:mybatis/mybatis-config.xml
-
 #日志配置
 logging:
   file: ijpay.log

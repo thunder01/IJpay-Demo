@@ -4,6 +4,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
+/**
+ * 微信商家支付配置
+ * spring容器注入此bean时，自动从wxpay.properties文件加载配置
+ * */
 @Component
 @PropertySource("classpath:/production/wxpay.properties")
 @ConfigurationProperties(prefix = "wxpay")
@@ -51,6 +55,7 @@ public class WxPayBean {
 	public void setDomain(String domain) {
 		this.domain = domain;
 	}
+
 	@Override
 	public String toString() {
 		return "WxPayBean [appId=" + appId + ", appSecret=" + appSecret + ", mchId=" + mchId + ", partnerKey="

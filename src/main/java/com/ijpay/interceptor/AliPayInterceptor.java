@@ -1,6 +1,5 @@
 package com.ijpay.interceptor;
 
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.method.HandlerMethod;
@@ -9,8 +8,11 @@ import org.springframework.web.servlet.ModelAndView;
 import com.ijpay.controller.alipay.AliPayApiController;
 import com.jpay.alipay.AliPayApiConfigKit;
 
+/**
+ * 拦截所有支付宝支付请求
+ * 目的是请求处理前加载配置信息
+ * */
 public class AliPayInterceptor implements HandlerInterceptor {
-
 	@Override
 	public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
 			Object handler) throws Exception {
@@ -22,6 +24,9 @@ public class AliPayInterceptor implements HandlerInterceptor {
 			}
 			
 			try {
+				/**
+				 * 加载支付宝支付的配置
+				 * */
 				AliPayApiConfigKit.setThreadLocalAliPayApiConfig(((AliPayApiController)controller).getApiConfig());
 				return true;
 			}

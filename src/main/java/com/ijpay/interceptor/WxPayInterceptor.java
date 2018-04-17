@@ -1,19 +1,19 @@
 package com.ijpay.interceptor;
 
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
-
 import com.ijpay.controller.wxpay.WxPayApiController;
 import com.ijpay.controller.wxpay.WxPayController;
 import com.jpay.weixin.api.WxPayApiConfigKit;
 
+/**
+ * 拦截所有微信支付请求
+ * 目的是请求处理前加载配置信息
+ * */
 public class WxPayInterceptor implements HandlerInterceptor {
-
 	@Override
 	public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
 			Object handler) throws Exception {
@@ -25,6 +25,9 @@ public class WxPayInterceptor implements HandlerInterceptor {
 			}
 			
 			try {
+				/**
+				 * 加载微信支付的配置
+				 * */
 				WxPayApiConfigKit.setThreadLocalWxPayApiConfig(((WxPayController)controller).getApiConfig());
 				return true;
 			}

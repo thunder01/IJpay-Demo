@@ -7,6 +7,9 @@ import java.io.IOException;
 
 /**
  * @author 冯志宇 2018/3/23
+ * 此过滤器的目的是解决跨域问题，在controller添加的@Crossorigin不好使了
+ * 在所有的响应信息头中添加允许跨域的设置
+ * 这会引起安全问题
  */
 @WebFilter(urlPatterns = "/*",filterName = "wxPayFilter")
 public class WxPayFilter implements Filter {
