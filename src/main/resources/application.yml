@@ -1,7 +1,7 @@
 #spring配置
 spring:
   profiles:
-    active: pro
+    active: dev
 
 
 
