@@ -3,6 +3,8 @@ package com.ijpay.controller;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.ijpay.entity.WxPayBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,8 @@ public class IndexController {
 
     @Autowired
     private WxMpService wxService;
+    @Autowired
+    WxPayBean wxPayBean;
 
     @RequestMapping("")
     @ResponseBody
@@ -37,7 +41,7 @@ public class IndexController {
     public void toOauth(HttpServletResponse response,@RequestParam("state")String state){
     	try {
             //访问这个地址到授权页面，授权后获取code
-        	String url = wxService.oauth2buildAuthorizationUrl("https://yx.hxygf.cn/oauth", WxConsts.OAUTH2_SCOPE_USER_INFO, state);
+        	String url = wxService.oauth2buildAuthorizationUrl("https://"+wxPayBean.getDomain()+"/oauth", WxConsts.OAUTH2_SCOPE_USER_INFO, state);
 			response.sendRedirect(url);
 		} catch (IOException e) {
 			e.printStackTrace();
