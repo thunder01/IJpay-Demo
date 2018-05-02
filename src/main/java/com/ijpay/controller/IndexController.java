@@ -48,7 +48,7 @@ public class IndexController {
     }
     
     @RequestMapping(value = "/oauth",method = RequestMethod.GET)
-    public ModelAndView oauth(HttpServletRequest request,HttpServletResponse response,
+    public void oauth(HttpServletRequest request,HttpServletResponse response,
                               @RequestParam(value = "code",required = true)String code){
     	try {
 			WxMpOAuth2AccessToken wxMpOAuth2AccessToken = wxService.oauth2getAccessToken(code);
@@ -56,12 +56,10 @@ public class IndexController {
 			logger.info("授权获取到的用户信息："+JsonUtils.toJson(wxMpUser));
 			String openId = wxMpUser.getOpenId();
             request.getSession().setAttribute("openId", openId);
-			return new ModelAndView("redirect:/towxpay");
-
+            response.sendRedirect("https://"+wxPayBean.getDomain()+"/towxpay");
         } catch (Exception e) {
 			e.printStackTrace();
 		}
-		return null;
     }
     
     @RequestMapping("/toWxH5Pay")
