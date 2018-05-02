@@ -32,9 +32,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public boolean cancelOrder(long id) {
+    public boolean updateOrderStatus(long id,int status) {
         Order one = orderRepository.findOne(id);
-        one.setOrderStatus(1);
+        one.setOrderStatus(status);
         Order save = orderRepository.save(one);
         if (save==null){
             return false;

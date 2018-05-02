@@ -19,7 +19,7 @@ public interface OrderService {
      * @param id
      * @return
      */
-    boolean cancelOrder(long id);
+    boolean updateOrderStatus(long id,int status);
 
     /**
      * 订单状态置为已完成
