@@ -21,9 +21,7 @@ public class SpringBootConfig {
 		JFinalViewResolver jf = new JFinalViewResolver();
 		jf.setDevMode(true);
 		jf.setCache(false);
-//		jf.setSourceFactory(new ClassPathSourceFactory());
 		jf.setPrefix("/WEB-INF/_views/");
-		jf.setSuffix(".html");
 		jf.setContentType("text/html;charset=UTF-8");
 		jf.setOrder(0);
 		return jf;
