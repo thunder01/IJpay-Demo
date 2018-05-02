@@ -53,6 +53,20 @@
 			<scope>system</scope>
 			<systemPath>${project.basedir}/libs/opslabJutil-2.0.1.jar</systemPath>
 		</dependency>
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>alipay-sdk-java</artifactId>
+			<version>java20171012102412</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/libs/alipay-sdk-java20171012102412.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>com.unionpay</groupId>
+			<artifactId>unionpay-sdk-java</artifactId>
+			<version>1.54</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/libs/bcprov-jdk15on-1.54.jar</systemPath>
+		</dependency>
 
 		<!--jfinal支持-->
 		<dependency>
