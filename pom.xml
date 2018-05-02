@@ -45,6 +45,15 @@
 			</exclusions>
 		</dependency>
 
+		<!--工具包-->
+		<dependency>
+			<groupId>com.0opslab</groupId>
+			<artifactId>opslabJutil</artifactId>
+			<version>2.0.1</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/libs/opslabJutil-2.0.1.jar</systemPath>
+		</dependency>
+
 		<!--jfinal支持-->
 		<dependency>
 			<groupId>com.jfinal</groupId>
@@ -155,15 +164,14 @@
 
 	<build>
 		<plugins>
-            <!--打成jar包-->
-			<!--<plugin>
+			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
 					<fork>true</fork>
                     <includeSystemScope>true</includeSystemScope>
 				</configuration>
-			</plugin>-->
+			</plugin>
 
 			<!--让WEB-INF\lib中的jar包也参与编译-->
 			<plugin>
