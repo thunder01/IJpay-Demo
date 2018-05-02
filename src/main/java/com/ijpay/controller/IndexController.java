@@ -3,8 +3,6 @@ package com.ijpay.controller;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.ijpay.entity.WxPayBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +25,6 @@ public class IndexController {
 
     @Autowired
     private WxMpService wxService;
-    @Autowired
-    WxPayBean wxPayBean;
 
     @RequestMapping("")
     @ResponseBody
