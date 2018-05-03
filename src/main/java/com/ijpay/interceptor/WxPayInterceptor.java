@@ -33,7 +33,8 @@ public class WxPayInterceptor implements HandlerInterceptor {
 				/**
 				 * 加载微信支付的配置
 				 * */
-				WxPayApiConfigKit.setThreadLocalWxPayApiConfig(((WxPayController)controller).getApiConfig());
+				System.out.println("请求路径"+httpServletRequest.getRequestURL());
+				WxPayApiConfigKit.setThreadLocalWxPayApiConfig(((WxPayController)controller).getApiConfig(httpServletRequest));
 				return true;
 			}
 			finally {

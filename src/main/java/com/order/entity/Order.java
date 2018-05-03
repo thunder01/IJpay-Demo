@@ -44,6 +44,8 @@ public class Order implements Serializable{
     @Column
     private String     billNum;
 
+    private String sessionid;
+
     public long getId() {
         return id;
     }
@@ -164,6 +166,14 @@ public class Order implements Serializable{
         this.billNum = billNum;
     }
 
+    public String getSessionid() {
+        return sessionid;
+    }
+
+    public void setSessionid(String sessionid) {
+        this.sessionid = sessionid;
+    }
+
     @Override
     public String toString() {
         return "Order{" +
@@ -182,6 +192,7 @@ public class Order implements Serializable{
                 ", paytime=" + paytime +
                 ", openBill=" + openBill +
                 ", billNum='" + billNum + '\'' +
+                ", sessionid='" + sessionid + '\'' +
                 '}';
     }
 }

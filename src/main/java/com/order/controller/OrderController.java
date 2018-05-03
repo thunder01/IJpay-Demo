@@ -1,25 +1,32 @@
 package com.order.controller;
 
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.util.MySessionListener;
+import com.util.OkHttpUtil;
 import com.order.entity.Order;
 import com.order.service.OrderService;
 import com.wechat.utils.JsonUtils;
-import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestBody;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
+import javax.servlet.http.HttpSession;
+import java.util.Map;
 
 /**
  * @author 冯志宇 2018/4/13
  */
 @RestController
 public class OrderController {
+    @Value("${wxpay.domain}")
+    private String domain;
+
+    @Autowired
+    private MySessionListener listener;
+
     @Autowired
     private OrderService orderService;
 
@@ -37,35 +44,32 @@ public class OrderController {
      * 生成订单
      * */
     @PostMapping(value = "/saveOrder")
-    public void saveOrder(@RequestBody Order order, HttpServletRequest httpServletRequest, HttpServletResponse response){
+    public String saveOrder(HttpServletResponse response, @RequestBody Order order){
         /**
          * 先生成订单
          * */
-        String openid = (String) httpServletRequest.getSession().getAttribute("openid");
+        System.out.println("sessionid  "+order.getSessionid());
+        HttpSession session = listener.getSession(order.getSessionid());
+        if (session==null){
+            return "请重新登录";
+        }
+
+        System.out.println("openid  "+session.getAttribute("openid"));
+        String openid = (String) session.getAttribute("openid");
+        if (openid==null||"".equals(openid)){
+            return "error:opneid can not be null";
+        }
         order.setOpenid(openid);
         Order save = orderService.save(order);
         /**
          * 然后请求支付接口
          * */
-        //创建OkHttpClient对象
-        OkHttpClient okHttpClient  = new OkHttpClient.Builder()
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .writeTimeout(10,TimeUnit.SECONDS)
-                .readTimeout(20, TimeUnit.SECONDS)
-                .build();
-
-        okhttp3.RequestBody requestBody= okhttp3.RequestBody.create(MediaType.parse("application/json; charset=utf-8"), JsonUtils.toJson(save));
-        final Request request = new Request.Builder()
-                .url("https://m.vipvipgo.cn/wxpay/webPay")//请求的url
-                .post(requestBody)
-                .build();
-
-        //创建/Call
-        try {
-            Response response1 = okHttpClient.newCall(request).execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        //String url="https:" + domain + "/wxpay/xcxPay";
+        String url="http://192.168.100.120:8080/wxpay/xcxPay";
+        String msg = OkHttpUtil.postRequest(url, JsonUtils.toJson(save));
+        JSONObject object = JSONObject.parseObject(msg);
+        Object data = object.get("data");
+        return data.toString();
     }
 
     /**

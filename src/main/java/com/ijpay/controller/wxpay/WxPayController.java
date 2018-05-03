@@ -11,6 +11,7 @@ import com.order.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import com.alibaba.fastjson.JSON;
@@ -32,6 +33,8 @@ import com.jpay.weixin.api.WxPayApiConfig.PayModel;
 import com.jpay.weixin.api.WxPayApiConfigKit;
 import com.wechat.config.WechatMpProperties;
 
+import static org.aspectj.weaver.tools.cache.SimpleCacheFactory.path;
+
 @Controller
 @CrossOrigin(origins = "*",maxAge = 3600)
 @RequestMapping("/wxpay")
@@ -39,6 +42,10 @@ public class WxPayController extends WxPayApiController {
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 	private AjaxResult result = new AjaxResult();
 	private HashSet set=new HashSet();
+	@Value("${xcx.appid}")
+	private String xcx_appid;
+	@Value("${xcx.secrect}")
+	private String xcx_secrect;
 	@Autowired
 	WxPayBean wxPayBean;
 	@Autowired
@@ -49,13 +56,30 @@ public class WxPayController extends WxPayApiController {
 	String notify_url;
 
 	@Override
-	public WxPayApiConfig getApiConfig() {
+	public WxPayApiConfig getApiConfig(HttpServletRequest httpServletRequest) {
 		notify_url = wxPayBean.getDomain().concat("/wxpay/pay_notify");
-		return WxPayApiConfig.New()
-				.setAppId(wxPayBean.getAppId())
-				.setMchId(wxPayBean.getMchId())
-				.setPaternerKey(wxPayBean.getPartnerKey())
-				.setPayModel(PayModel.BUSINESSMODEL);
+
+		/**
+		 * 如果请求的是小程序支付则使用小程序的appid及secrect
+		 * 否则，使用公众号的配置
+		 */
+		String[] str = httpServletRequest.getRequestURL().toString().split("/");
+		System.out.println(str[str.length-1]);
+		if ("xcxPay".equals(str[str.length-1])){
+			System.out.println("读取小程序配置");
+			return WxPayApiConfig.New()
+					.setAppId(xcx_appid)
+					.setMchId(wxPayBean.getMchId())
+					.setPaternerKey(wxPayBean.getPartnerKey())
+					.setPayModel(PayModel.BUSINESSMODEL);
+		}else {
+			System.out.println("读取公众号配置");
+			return WxPayApiConfig.New()
+					.setAppId(wxPayBean.getAppId())
+					.setMchId(wxPayBean.getMchId())
+					.setPaternerKey(wxPayBean.getPartnerKey())
+					.setPayModel(PayModel.BUSINESSMODEL);
+		}
 	}
 
 	@RequestMapping("")
@@ -154,12 +178,15 @@ public class WxPayController extends WxPayApiController {
 
 		return "支付完成";
 	}
-	
-	
+
 	/**
 	 * 公众号支付
 	 */
-	@RequestMapping(value ="/webPay",method = {RequestMethod.POST,RequestMethod.GET})
+
+	/**
+	 * 小程序支付
+	 */
+	@RequestMapping(value ="/xcxPay",method = {RequestMethod.POST})
 	@ResponseBody
 	public AjaxResult webPay(HttpServletRequest request, HttpServletResponse response,
 							 @RequestBody Order order) {
@@ -168,7 +195,6 @@ public class WxPayController extends WxPayApiController {
 		if (StrKit.isBlank(ip)) {
 			ip = "127.0.0.1";
 		}
-		
 		Map<String, String> params = WxPayApiConfigKit.getWxPayApiConfig()
 				.setAttach("综合服务平台")
 				.setBody("购买"+order.getEnergyNum()+"度电")
@@ -179,7 +205,10 @@ public class WxPayController extends WxPayApiController {
 				.setNotifyUrl(notify_url)
 				.setOutTradeNo(order.getOrderNo())
 				.build();
-		
+
+		/**
+		 * 调用统一下单支付API
+		 * */
 		String xmlResult = WxPayApi.pushOrder(false,params);
 		log.info(xmlResult);
 		Map<String, String> resultMap = PaymentKit.xmlToMap(xmlResult);
