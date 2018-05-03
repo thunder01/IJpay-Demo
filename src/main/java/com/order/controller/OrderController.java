@@ -64,8 +64,7 @@ public class OrderController {
         /**
          * 然后请求支付接口
          * */
-        //String url="https:" + domain + "/wxpay/xcxPay";
-        String url="http://192.168.100.120:8080/wxpay/xcxPay";
+        String url="https:" + domain + "/wxpay/xcxPay";
         String msg = OkHttpUtil.postRequest(url, JsonUtils.toJson(save));
         JSONObject object = JSONObject.parseObject(msg);
         Object data = object.get("data");
