@@ -2,12 +2,17 @@ package com.ijpay.interceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 import com.ijpay.controller.wxpay.WxPayApiController;
 import com.ijpay.controller.wxpay.WxPayController;
 import com.jpay.weixin.api.WxPayApiConfigKit;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * 拦截所有微信支付请求

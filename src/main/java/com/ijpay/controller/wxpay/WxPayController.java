@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.order.entity.Order;
+import com.order.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,15 +38,14 @@ import com.wechat.config.WechatMpProperties;
 public class WxPayController extends WxPayApiController {
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 	private AjaxResult result = new AjaxResult();
-
 	private HashSet set=new HashSet();
-
 	@Autowired
 	WxPayBean wxPayBean;
-	
 	@Autowired
 	WechatMpProperties wechatMpProperties;
-	
+	@Autowired
+	OrderService orderService;
+
 	String notify_url;
 
 	@Override
@@ -159,35 +161,23 @@ public class WxPayController extends WxPayApiController {
 	 */
 	@RequestMapping(value ="/webPay",method = {RequestMethod.POST,RequestMethod.GET})
 	@ResponseBody
-	public AjaxResult webPay(HttpServletRequest request,HttpServletResponse response,
-			@RequestParam("total_fee") String total_fee) {
+	public AjaxResult webPay(HttpServletRequest request, HttpServletResponse response,
+							 @RequestBody Order order) {
 
-		// openId，采用网页授权获取 access_token API：SnsAccessTokenApi获取
-		String openId = (String) request.getSession().getAttribute("openId");
-
-		if (StrKit.isBlank(openId)) {
-			result.addError("openId is null");
-			return result;
-		}
-		if (StrKit.isBlank(total_fee)) {
-			result.addError("请输入数字金额");
-			return result;
-		}
-		
 		String ip = IpKit.getRealIp(request);
 		if (StrKit.isBlank(ip)) {
 			ip = "127.0.0.1";
 		}
 		
 		Map<String, String> params = WxPayApiConfigKit.getWxPayApiConfig()
-				.setAttach("IJPay 公众号支付测试  -By Javen")
-				.setBody("IJPay 公众号支付测试  -By Javen")
-				.setOpenId(openId)
+				.setAttach("综合服务平台")
+				.setBody("购买"+order.getEnergyNum()+"度电")
+				.setOpenId(order.getOpenid())
 				.setSpbillCreateIp(ip)
-				.setTotalFee(total_fee)
+				.setTotalFee(order.getOrderSum().toString())
 				.setTradeType(TradeType.JSAPI)
 				.setNotifyUrl(notify_url)
-				.setOutTradeNo(String.valueOf(System.currentTimeMillis()))
+				.setOutTradeNo(order.getOrderNo())
 				.build();
 		
 		String xmlResult = WxPayApi.pushOrder(false,params);
@@ -207,6 +197,8 @@ public class WxPayController extends WxPayApiController {
 		}
 		// 以下字段在return_code 和result_code都为SUCCESS的时候有返回
 
+		//订单状态修改为已付款
+		orderService.updateOrderStatus(order.getId(),2);
 		String prepay_id = resultMap.get("prepay_id");
 		
 		Map<String, String> packageParams = PaymentKit.prepayIdCreateSign(prepay_id);
@@ -590,11 +582,11 @@ log.info("最新返回apk的参数:"+jsonStr);
 //		//现金支付金额
 //		String cash_fee     = params.get("cash_fee");
 //		// 微信支付订单号
-//		String transaction_id      = params.get("transaction_id");
+		String transaction_id      = params.get("transaction_id");
 //		// 商户订单号
 //		String out_trade_no      = params.get("out_trade_no");
 //		// 支付完成时间，格式为yyyyMMddHHmmss
-//		String time_end      = params.get("time_end");
+		String time_end      = params.get("time_end");
 		
 		/////////////////////////////以下是附加参数///////////////////////////////////
 		

@@ -12,7 +12,7 @@ public interface OrderService {
      * @param order
      * @return
      */
-    boolean save(Order order);
+    Order save(Order order);
 
     /**
      * 取消订单

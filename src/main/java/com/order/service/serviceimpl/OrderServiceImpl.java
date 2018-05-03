@@ -4,12 +4,15 @@ import com.opslab.util.RandomUtil;
 import com.order.entity.Order;
 import com.order.repository.OrderRepository;
 import com.order.service.OrderService;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.sql.Timestamp;
 
 /**
  * @author 冯志宇 2018/4/13
@@ -20,21 +23,20 @@ public class OrderServiceImpl implements OrderService {
     private OrderRepository orderRepository;
 
     @Override
-    public boolean save(Order order) {
+    public Order save(Order order) {
         /**生成订单编号*/
         order.setOrderNo(RandomUtil.squid());
         Order save = orderRepository.save(order);
-        if (save==null){
-            return false;
-        }else {
-            return true;
-        }
+        return save;
     }
 
     @Override
     public boolean updateOrderStatus(long id,int status) {
         Order one = orderRepository.findOne(id);
         one.setOrderStatus(status);
+        if (status==2){
+            one.setPaytime(new Timestamp(System.currentTimeMillis()));
+        }
         Order save = orderRepository.save(one);
         if (save==null){
             return false;

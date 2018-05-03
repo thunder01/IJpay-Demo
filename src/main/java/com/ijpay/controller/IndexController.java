@@ -1,17 +1,23 @@
 package com.ijpay.controller;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.ijpay.entity.WxPayBean;
+import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import com.wechat.utils.JsonUtils;
@@ -46,7 +52,13 @@ public class IndexController {
 			e.printStackTrace();
 		}
     }
-    
+
+    /**
+     * 网页授权登陆
+     * @param request
+     * @param response
+     * @param code
+     */
     @RequestMapping(value = "/oauth",method = RequestMethod.GET)
     public void oauth(HttpServletRequest request,HttpServletResponse response,
                               @RequestParam(value = "code",required = true)String code){
@@ -61,17 +73,76 @@ public class IndexController {
 			e.printStackTrace();
 		}
     }
-    
+
+    /**
+     * 微信小程序登陆
+     * @param httpServletRequest
+     * @param httpServletResponse
+     */
+    @RequestMapping(value = "/xcxOauth",method = RequestMethod.POST)
+    public void xcxOauth(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
+                           @RequestBody Map<String, String> map){
+        final String appid="wx62e3487c29a5ba26";
+        final String secret="4bed9279f45168c38b127c122b4e1e35";
+
+        /**
+         * 从请求体重提取code值
+         */
+        String code="";
+        if (map.containsKey("code")){
+            code=map.get("code");
+            System.out.println("code: "+code);
+        }
+
+        /**
+         * 使用OkHttp3发起微信小程序认证请求
+         */
+        OkHttpClient okHttpClient  = new OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(10,TimeUnit.SECONDS)
+                .readTimeout(20, TimeUnit.SECONDS)
+                .build();
+
+        final Request request = new Request.Builder()
+                .url("https://api.weixin.qq.com/sns/jscode2session?appid="+appid+"&secret="+secret+"&js_code="+code+"&grant_type=authorization_code")//请求的url
+                .get()//设置请求方式，get()/post()  查看Builder()方法知，在构建时默认设置请求方式为GET
+                .build(); //构建一个请求Request对象
+
+        //同步请求
+        try {
+            Response response = okHttpClient.newCall(request).execute();
+            String respMsg=response.body().string();
+            System.out.println("响应信息"+respMsg);
+            Map maps = (Map)JSON.parse(respMsg);
+            String openid=(String)maps.get("openid");
+            String session_key=(String)maps.get("session_key");
+            httpServletRequest.getSession().setAttribute("openid",openid);
+            httpServletRequest.getSession().setAttribute("session_key",session_key);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("openid"+httpServletRequest.getSession().getAttribute("openid"));
+    }
+
+    /**
+     * 跳转到微信H5支付demo页面
+     * */
     @RequestMapping("/toWxH5Pay")
     public String toWxH5Pay(){
 		return "wxh5pay.html";
 	}
-    
+
+	/**
+     * 跳转到微信公众号及扫码支付demo
+     * */
     @RequestMapping("/towxpay")
     public String towxpay() {
 		return "wxpay.html";
 	}
 
+	/**
+     * 微信服务商demo
+     * */
     @RequestMapping("/towxsubpay")
 	public String towxsubpay() {
 		return "wxsubpay.html";

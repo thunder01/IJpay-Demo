@@ -1,14 +1,19 @@
 package com.order.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.order.entity.Order;
-import com.order.repository.OrderRepository;
 import com.order.service.OrderService;
-import org.aspectj.weaver.ast.Or;
+import com.wechat.utils.JsonUtils;
+import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
 
-import java.awt.print.Pageable;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author 冯志宇 2018/4/13
@@ -32,8 +37,35 @@ public class OrderController {
      * 生成订单
      * */
     @PostMapping(value = "/saveOrder")
-    public boolean saveOrder(@RequestBody Order order){
-        return orderService.save(order);
+    public void saveOrder(@RequestBody Order order, HttpServletRequest httpServletRequest, HttpServletResponse response){
+        /**
+         * 先生成订单
+         * */
+        String openid = (String) httpServletRequest.getSession().getAttribute("openid");
+        order.setOpenid(openid);
+        Order save = orderService.save(order);
+        /**
+         * 然后请求支付接口
+         * */
+        //创建OkHttpClient对象
+        OkHttpClient okHttpClient  = new OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(10,TimeUnit.SECONDS)
+                .readTimeout(20, TimeUnit.SECONDS)
+                .build();
+
+        okhttp3.RequestBody requestBody= okhttp3.RequestBody.create(MediaType.parse("application/json; charset=utf-8"), JsonUtils.toJson(save));
+        final Request request = new Request.Builder()
+                .url("https://m.vipvipgo.cn/wxpay/webPay")//请求的url
+                .post(requestBody)
+                .build();
+
+        //创建/Call
+        try {
+            Response response1 = okHttpClient.newCall(request).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
