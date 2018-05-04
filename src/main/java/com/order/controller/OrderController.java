@@ -11,10 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestBody;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.Map;
 
 /**
  * @author 冯志宇 2018/4/13
@@ -72,18 +70,27 @@ public class OrderController {
     }
 
     /**
-     * 全部订单
+     * 我的全部订单,根据openid查询我的订单
      * @param pageNum 当前页
      * @param pageSize 每页条数
+     * @param sessionid 会话标识
      * */
-    @GetMapping(value = "/getAllOrder/{pageNum}/{pageSize}")
+    @GetMapping(value = "/getAllOrderByOpenid/{pageNum}/{pageSize}/{sessionid}")
     public Page<Order> getAllOrder(@PathVariable("pageNum")int pageNum,
-                                   @PathVariable("pageSize")int pageSize){
-        return orderService.getAllOrder(pageNum,pageSize);
+                                   @PathVariable("pageSize")int pageSize,
+                                   @PathVariable("sessionid") String sessionid){
+        //根据sessionid取出当前用户的会话，并获取openid
+        HttpSession session = listener.getSession(sessionid);
+        if (session==null){
+            System.out.println("重新登录");
+            return null;
+        }
+        String openid = (String) session.getAttribute("openid");
+        return orderService.getAllOrder(openid,pageNum,pageSize);
     }
 
     /**
-     * 根据状态查询订单
+     * 根据状态查询订单，查询已取消订单或已完成订单
      * @param pageNum 当前页数
      * @param pageSize 每页条数
      * @param status 订单状态值

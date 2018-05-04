@@ -16,4 +16,9 @@ public interface OrderRepository extends PagingAndSortingRepository<Order,Long> 
      * 按订单状态查找
      * */
     Page<Order> findByOrderStatus(int status, Pageable page);
+
+    /**
+     * 查询我的订单
+     */
+    Page<Order> findByOpenid(String openid,Pageable page);
 }

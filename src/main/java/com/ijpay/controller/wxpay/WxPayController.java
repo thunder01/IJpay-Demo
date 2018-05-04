@@ -189,7 +189,6 @@ public class WxPayController extends WxPayApiController {
 
         // openId，采用网页授权获取 access_token API：SnsAccessTokenApi获取
         String openId = (String) request.getSession().getAttribute("openId");
-
         if (StrKit.isBlank(openId)) {
             result.addError("openId is null");
             return result;
@@ -200,6 +199,7 @@ public class WxPayController extends WxPayApiController {
         }
 
         String ip = IpKit.getRealIp(request);
+        System.out.println("ip地址是 "+ip);
         if (StrKit.isBlank(ip)) {
             ip = "127.0.0.1";
         }
@@ -215,6 +215,7 @@ public class WxPayController extends WxPayApiController {
                 .setOutTradeNo(String.valueOf(System.currentTimeMillis()))
                 .build();
 
+        System.out.println("appid   "+params.get("appid"));
         String xmlResult = WxPayApi.pushOrder(false,params);
         log.info(xmlResult);
         Map<String, String> resultMap = PaymentKit.xmlToMap(xmlResult);
@@ -238,6 +239,8 @@ public class WxPayController extends WxPayApiController {
 
         String jsonStr = JSON.toJSONString(packageParams);
         result.success(jsonStr);
+
+        System.out.println("响应信息"+jsonStr);
         return result;
     }
 

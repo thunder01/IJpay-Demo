@@ -63,12 +63,12 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<Order> getAllOrder(int pageNum,int pageSize) {
+    public Page<Order> getAllOrder(String opneid,int pageNum,int pageSize) {
         /**设置排序方式，按照创建日期倒序*/
         Sort sort=new Sort(new Sort.Order(Sort.Direction.DESC,"createtime"));
         /**设置分页信息,页数是从0开始的*/
         Pageable pageable=new PageRequest(pageNum-1,pageSize,sort);
-        Page<Order> all = orderRepository.findAll(pageable);
+        Page<Order> all = orderRepository.findByOpenid(opneid,pageable);
         return all;
     }
 

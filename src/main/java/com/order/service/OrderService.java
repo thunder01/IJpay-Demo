@@ -35,12 +35,13 @@ public interface OrderService {
     Order getById(long id);
 
     /**
-     * 获取全部订单
+     * 获取我的订单
+     * @param openid 用户的唯一标识
      * @param pageNum 当前页数
      * @param pageSize 每页显示条数
      * @return
      */
-    Page<Order> getAllOrder(int pageNum,int pageSize);
+    Page<Order> getAllOrder(String openid,int pageNum,int pageSize);
 
     /**
      * 根据订单状态查询
