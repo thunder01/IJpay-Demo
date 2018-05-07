@@ -3,11 +3,14 @@ package com.ijpay.controller.wxpay;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.order.entity.Order;
 import com.order.service.OrderService;
+import com.util.MySessionListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,11 +50,13 @@ public class WxPayController extends WxPayApiController {
 	@Value("${xcx.secrect}")
 	private String xcx_secrect;
 	@Autowired
-	WxPayBean wxPayBean;
+	private WxPayBean wxPayBean;
 	@Autowired
-	WechatMpProperties wechatMpProperties;
+	private WechatMpProperties wechatMpProperties;
 	@Autowired
-	OrderService orderService;
+	private OrderService orderService;
+	@Autowired
+	private MySessionListener listener;
 
 	String notify_url;
 
@@ -186,9 +191,22 @@ public class WxPayController extends WxPayApiController {
     @ResponseBody
     public AjaxResult webPay(HttpServletRequest request,HttpServletResponse response,
                              @RequestParam("total_fee") String total_fee) {
+    	/**
+		 * 从cookie信息中获取sessionid
+		 * */
+		Cookie cookie = request.getCookies()[0];
+		String sessionid = cookie.getValue();
+		HttpSession session=listener.getSession(sessionid);
+		if (session==null){//重新登录
+			try {
+				response.sendRedirect("https://"+wxPayBean.getDomain()+"/toOauth");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 
-        // openId，采用网页授权获取 access_token API：SnsAccessTokenApi获取
-        String openId = (String) request.getSession().getAttribute("openId");
+		// openId，采用网页授权获取 access_token API：SnsAccessTokenApi获取
+        String openId = (String) session.getAttribute("openId");
         if (StrKit.isBlank(openId)) {
             result.addError("openId is null");
             return result;
@@ -446,7 +464,20 @@ public class WxPayController extends WxPayApiController {
 	@ResponseBody
 	public AjaxResult scanCode2(HttpServletRequest request, HttpServletResponse response,
 								@RequestParam(value = "total_fee",required = false) String total_fee) {
-		String openId = (String) request.getSession().getAttribute("openId");
+		/**
+		 * 从cookie信息中获取sessionid
+		 * */
+		Cookie cookie = request.getCookies()[0];
+		String sessionid = cookie.getValue();
+		HttpSession session=listener.getSession(sessionid);
+		if (session==null){//重新登录
+			try {
+				response.sendRedirect("https://"+wxPayBean.getDomain()+"/toOauth");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		String openId = (String) session.getAttribute("openId");
 
 		if (StrKit.isBlank(openId)) {
 			result.addError("openId is null");
