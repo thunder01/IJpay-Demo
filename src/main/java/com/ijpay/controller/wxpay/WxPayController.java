@@ -199,7 +199,7 @@ public class WxPayController extends WxPayApiController {
 		HttpSession session=listener.getSession(sessionid);
 		if (session==null){//重新登录
 			try {
-				response.sendRedirect("https://"+wxPayBean.getDomain()+"/toOauth");
+				response.sendRedirect("https://"+wxPayBean.getDomain()+"/toOauth?state=wxpay");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -735,6 +735,16 @@ log.info("最新返回apk的参数:"+jsonStr);
 					//补充微信交易订单号
 					order.setOutTradeNo(transaction_id);
 					orderService.updateOrderOutTrandeNo(order);
+					//商户处理后同步返回给微信参数：
+					Map<String, String> xml = new HashMap<String, String>();
+					xml.put("return_code", "SUCCESS");
+					xml.put("return_msg", "OK");
+					return PaymentKit.toXml(xml);
+				}
+			}
+		}else if (order==null){
+			if(PaymentKit.verifyNotify(params, WxPayApiConfigKit.getWxPayApiConfig().getPaternerKey())){
+				if (("SUCCESS").equals(result_code)) {
 					//商户处理后同步返回给微信参数：
 					Map<String, String> xml = new HashMap<String, String>();
 					xml.put("return_code", "SUCCESS");
