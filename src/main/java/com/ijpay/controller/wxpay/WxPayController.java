@@ -198,11 +198,7 @@ public class WxPayController extends WxPayApiController {
 		String sessionid = cookie.getValue();
 		HttpSession session=listener.getSession(sessionid);
 		if (session==null){//重新登录
-			try {
-				response.sendRedirect("https://"+wxPayBean.getDomain()+"/toOauth?state=wxpay");
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			return null;
 		}
 
 		// openId，采用网页授权获取 access_token API：SnsAccessTokenApi获取
