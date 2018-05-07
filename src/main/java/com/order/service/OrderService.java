@@ -15,17 +15,11 @@ public interface OrderService {
     Order save(Order order);
 
     /**
-     * 取消订单
+     * 修改订单状态
      * @param id
      * @return
      */
     boolean updateOrderStatus(long id,int status);
-
-    /**
-     * 订单状态置为已完成
-     * @return
-     */
-    boolean finishOrder(long id);
 
     /**
      * 根据id查询订单
@@ -51,4 +45,16 @@ public interface OrderService {
      * @return
      */
     Page<Order> getByOrderStatus(int pageNum,int pageSize,int status);
+
+    /**
+     * 根据订单号查询订单信息
+     * @param orderNo 订单编号
+     */
+    Order getOrderByOrderNo(String orderNo);
+
+    /**
+     * 修改订单,补充out_trade_no信息以及支付时间信息
+     * @param order
+     */
+    Order updateOrderOutTrandeNo(Order order);
 }

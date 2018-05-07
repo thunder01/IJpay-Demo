@@ -1,6 +1,7 @@
 package com.order.repository;
 
 import com.order.entity.Order;
+import org.hibernate.sql.Update;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -21,4 +22,11 @@ public interface OrderRepository extends PagingAndSortingRepository<Order,Long> 
      * 查询我的订单
      */
     Page<Order> findByOpenid(String openid,Pageable page);
+
+    /**
+     * 根据订单编号查询订单
+     * @param orderNo 订单编号
+     * @return
+     */
+    Order findByOrderNo(String orderNo);
 }

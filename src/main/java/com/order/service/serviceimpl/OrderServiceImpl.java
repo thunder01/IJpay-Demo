@@ -46,18 +46,6 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public boolean finishOrder(long id) {
-        Order one = orderRepository.findOne(id);
-        one.setOrderStatus(4);
-        Order save = orderRepository.save(one);
-        if (save==null){
-            return false;
-        }else {
-            return true;
-        }
-    }
-
-    @Override
     public Order getById(long id) {
         return orderRepository.findOne(id);
     }
@@ -80,5 +68,19 @@ public class OrderServiceImpl implements OrderService {
         Pageable pageable=new PageRequest(pageNum-1,pageSize,sort);
         Page<Order> result=orderRepository.findByOrderStatus(status,pageable);
         return result;
+    }
+
+    @Override
+    public Order getOrderByOrderNo(String orderNo) {
+        return orderRepository.findByOrderNo(orderNo);
+    }
+
+    @Override
+    public Order updateOrderOutTrandeNo(Order order) {
+        Order one = orderRepository.findOne(order.getId());
+        one.setOutTradeNo(order.getOrderNo());
+        Order save = orderRepository.save(one);
+
+        return save;
     }
 }

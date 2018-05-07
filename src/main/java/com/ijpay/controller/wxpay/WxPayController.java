@@ -305,8 +305,6 @@ public class WxPayController extends WxPayApiController {
 		}
 		// 以下字段在return_code 和result_code都为SUCCESS的时候有返回
 
-		//订单状态修改为已付款
-		orderService.updateOrderStatus(order.getId(),2);
 		String prepay_id = resultMap.get("prepay_id");
 		
 		Map<String, String> packageParams = PaymentKit.prepayIdCreateSign(prepay_id);
@@ -704,27 +702,39 @@ log.info("最新返回apk的参数:"+jsonStr);
 //		String cash_fee     = params.get("cash_fee");
 //		// 微信支付订单号
 		String transaction_id      = params.get("transaction_id");
-//		// 商户订单号
-//		String out_trade_no      = params.get("out_trade_no");
+		/**
+		 *商户订单号,就是商家自己生成的order_no
+		 */
+		String out_trade_no      = params.get("out_trade_no");
 //		// 支付完成时间，格式为yyyyMMddHHmmss
 		String time_end      = params.get("time_end");
-		
+
 		/////////////////////////////以下是附加参数///////////////////////////////////
-		
+
 		String attach      = params.get("attach");
 //		String fee_type      = params.get("fee_type");
 //		String is_subscribe      = params.get("is_subscribe");
 //		String err_code      = params.get("err_code");
 //		String err_code_des      = params.get("err_code_des");
-		// 注意重复通知的情况，同一订单号可能收到多次通知，请注意一定先判断订单状态
-		// 避免已经成功、关闭、退款的订单被再次更新
-		// 从数据库查询订单，若已存在则返回空，不存在则返回SUCCESS
-//		OrderDao order = OrderDao.dao.getOrderByTransactionId(transaction_id);
-//		if (order==null) {
+		/**
+		 * 注意重复通知的情况，同一订单号可能收到多次通知，请注意一定先判断订单状态
+		   避免已经成功、关闭、退款的订单被再次更新
+		 */
+		Order order = orderService.getOrderByOrderNo(out_trade_no);
+
+		/**
+		 * 如果订单状态为未支付，则更改状态，并返回成功
+		 * 已经成功、取消、退款的订单则返回null
+		 */
+		if (order!=null&&order.getOrderStatus()==0) {
 			if(PaymentKit.verifyNotify(params, WxPayApiConfigKit.getWxPayApiConfig().getPaternerKey())){
 				if (("SUCCESS").equals(result_code)) {
 					//更新订单信息
 					log.warn("更新订单信息:"+attach);
+					orderService.updateOrderStatus(order.getId(),2);
+					//补充微信交易订单号
+					order.setOutTradeNo(transaction_id);
+					orderService.updateOrderOutTrandeNo(order);
 					//商户处理后同步返回给微信参数：
 					Map<String, String> xml = new HashMap<String, String>();
 					xml.put("return_code", "SUCCESS");
@@ -732,10 +742,9 @@ log.info("最新返回apk的参数:"+jsonStr);
 					return PaymentKit.toXml(xml);
 				}
 			}
-//		}
-
+		}
 		return null;
 	}
-	
+
 
 }
