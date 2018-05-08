@@ -284,6 +284,7 @@ public class WxPayController extends WxPayApiController {
 		/**
 		 * 调用统一下单支付API
 		 * */
+		System.out.println("小程序的appid："+params.get("appid"));
 		String xmlResult = WxPayApi.pushOrder(false,params);
 		log.info(xmlResult);
 		Map<String, String> resultMap = PaymentKit.xmlToMap(xmlResult);
