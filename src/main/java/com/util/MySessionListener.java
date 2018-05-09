@@ -38,9 +38,11 @@ public class MySessionListener implements HttpSessionListener {
     /**
      * 手动删除session
      * */
-    public static synchronized void delSession(HttpSession session) {
+    public static void delSession(HttpSession session) {
         if (session != null) {
-            sessionMap.remove(session.getId());
+            synchronized (MySessionListener.class) {
+                sessionMap.remove(session.getId());
+            }
         }
     }
 
@@ -50,7 +52,12 @@ public class MySessionListener implements HttpSessionListener {
     public static synchronized HttpSession getSession(String session_id) {
         if (session_id == null)
             return null;
-        return (HttpSession) sessionMap.get(session_id);
+        //检查sessionMap中有没有指定的session_id，有可能过期之后被删除了
+        boolean flag = sessionMap.containsKey(session_id);
+        if (flag){
+            return sessionMap.get(session_id);
+        }
+        return null;
     }
 
     /**
@@ -113,7 +120,7 @@ public class MySessionListener implements HttpSessionListener {
          * 设置session的有效时间为
          */
         HttpSession session = httpSessionEvent.getSession();
-        session.setMaxInactiveInterval(7200);
+        session.setMaxInactiveInterval(3600*24*30);
         addSession(session);
     }
 
