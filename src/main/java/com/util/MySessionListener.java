@@ -109,7 +109,12 @@ public class MySessionListener implements HttpSessionListener {
     @Override
     public void sessionCreated(HttpSessionEvent httpSessionEvent) {
         System.out.println("session被创建");
-        addSession(httpSessionEvent.getSession());
+        /**
+         * 设置session的有效时间为
+         */
+        HttpSession session = httpSessionEvent.getSession();
+        session.setMaxInactiveInterval(7200);
+        addSession(session);
     }
 
     /**
