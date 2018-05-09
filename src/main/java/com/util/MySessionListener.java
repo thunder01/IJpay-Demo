@@ -1,6 +1,8 @@
 package com.util;
 
 import org.springframework.stereotype.Component;
+
+import javax.servlet.annotation.WebListener;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
@@ -11,8 +13,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
 /**
+ * session监听器
  * @author 冯志宇 2018/5/3
  */
+@WebListener
 @Component
 public class MySessionListener implements HttpSessionListener {
     public static HashMap<String,HttpSession> sessionMap = new HashMap();
@@ -22,24 +26,12 @@ public class MySessionListener implements HttpSessionListener {
      * session过期之后，value就会变为null，
      * 所以要清理所以value为null的键值对
      */
-    public static synchronized void addSession(HttpSession session) {
+    public static void addSession(HttpSession session) {
         if (session != null) {
-            sessionMap.put(session.getId(), session);
-            //启用另一个线程，开始清理sessionmap，把value为空的键值对删掉
-            ExecutorService executor = Executors.newCachedThreadPool();
-            FutureTask<String> future = new FutureTask<String>(new Callable<String>() {
-                public String call() throws Exception{ //建议抛出异常
-                    try {
-                        removeNullValue(sessionMap);
-                        System.out.println("异步清理sessionMap完成");
-                        return "OK";
-                    }
-                    catch(Exception e) {
-                        throw new Exception("Callable terminated with Exception!"); // call方法可以抛出异常
-                    }
-                }
-            });
-            executor.execute(future);
+            //添加方法保持线程安全，放在同步代码块中
+            synchronized (MySessionListener.class){
+                sessionMap.put(session.getId(), session);
+            }
         }
     }
 
@@ -88,13 +80,47 @@ public class MySessionListener implements HttpSessionListener {
         }
     }
 
-    @Override
-    public void sessionCreated(HttpSessionEvent httpSessionEvent) {
-
+    /**
+     * 开启一个新的线程，用来清理sessionMap中value为null的对象
+     */
+    private void clearSessionMap(){
+        //启用另一个线程，开始清理sessionmap，把value为空的键值对删掉
+        ExecutorService executor = Executors.newCachedThreadPool();
+        FutureTask<String> future = new FutureTask<String>(new Callable<String>() {
+            public String call() throws Exception{ //建议抛出异常
+                try {
+                    removeNullValue(sessionMap);
+                    System.out.println("异步清理sessionMap完成");
+                    return "OK";
+                }
+                catch(Exception e) {
+                    throw new Exception("Callable terminated with Exception!"); // call方法可以抛出异常
+                }
+            }
+        });
+        executor.execute(future);
     }
 
+    /**
+     * 创建session事件，客户端首次访问
+     * 将创建的session保存在sessionMap中
+     * @param httpSessionEvent
+     */
+    @Override
+    public void sessionCreated(HttpSessionEvent httpSessionEvent) {
+        System.out.println("session被创建");
+        addSession(httpSessionEvent.getSession());
+    }
+
+    /**
+     * session销毁
+     * @param httpSessionEvent
+     */
     @Override
     public void sessionDestroyed(HttpSessionEvent httpSessionEvent) {
-
+        System.out.println("session被销毁");
+        HttpSession session = httpSessionEvent.getSession();
+        delSession(session);
+        clearSessionMap();
     }
 }

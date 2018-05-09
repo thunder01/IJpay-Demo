@@ -5,6 +5,8 @@ import java.util.Map;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import com.util.MySessionListener;
 import com.util.OkHttpUtil;
 import com.alibaba.fastjson.JSON;
@@ -72,7 +74,6 @@ public class IndexController {
          * 微信内置的浏览器特殊情况,响应的set-cookie不起作用，所以无法存储JSSESSIONID
          * 所以手动设置
          * */
-        listener.addSession(request.getSession());
         Cookie cookie=new Cookie("sessionid",request.getSession().getId());
         response.addCookie(cookie);
 
@@ -112,15 +113,16 @@ public class IndexController {
         System.out.println("响应信息"+respMsg);
 
         Map maps = (Map)JSON.parse(respMsg);
-        httpServletRequest.getSession().setAttribute("openid",(String)maps.get("openid"));
-        httpServletRequest.getSession().setAttribute("session_key",(String)maps.get("session_key"));
+        HttpSession session = httpServletRequest.getSession();
+        session.setAttribute("openid",(String)maps.get("openid"));
+        session.setAttribute("session_key",(String)maps.get("session_key"));
 
-        listener.addSession(httpServletRequest.getSession());
         /**
          * 把sessionid放在响应头中，返回给前端的，之后前端的每次请求都要带上sessionid
          * 以维护会话状态，因为小程序跟浏览器不一样，好像没有cookie
          * */
-        httpServletResponse.setHeader("sessionid",httpServletRequest.getSession().getId());
+        httpServletResponse.setHeader("openid",(String)maps.get("openid"));
+        httpServletResponse.setHeader("sessionid",session.getId());
     }
 
     /**

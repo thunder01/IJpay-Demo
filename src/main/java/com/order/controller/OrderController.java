@@ -66,7 +66,6 @@ public class OrderController {
         String msg = OkHttpUtil.postRequest(url, JsonUtils.toJson(save));
         JSONObject object = JSONObject.parseObject(msg);
         Object data = object.get("data");
-        //判断微信服务器返回的数据是不是空的，否则会报空指针异常
         if(data!=null){
             return data.toString();
         }else {
