@@ -120,7 +120,6 @@ public class MySessionListener implements HttpSessionListener {
          * 设置session的有效时间为
          */
         HttpSession session = httpSessionEvent.getSession();
-        session.setMaxInactiveInterval(3600*24*30);
         addSession(session);
     }
 

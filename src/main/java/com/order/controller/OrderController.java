@@ -49,7 +49,7 @@ public class OrderController {
         System.out.println("sessionid  "+order.getSessionid());
         HttpSession session = listener.getSession(order.getSessionid());
         if (session==null){
-            return "请重新登录";
+            return "expired";
         }
 
         System.out.println("openid  "+session.getAttribute("openid"));
@@ -80,17 +80,17 @@ public class OrderController {
      * @param sessionid 会话标识
      * */
     @GetMapping(value = "/getAllOrderByOpenid/{pageNum}/{pageSize}/{sessionid}")
-    public Page<Order> getAllOrder(@PathVariable("pageNum")int pageNum,
+    public String getAllOrder(@PathVariable("pageNum")int pageNum,
                                    @PathVariable("pageSize")int pageSize,
                                    @PathVariable("sessionid") String sessionid){
         //根据sessionid取出当前用户的会话，并获取openid
         HttpSession session = listener.getSession(sessionid);
         if (session==null){
-            System.out.println("重新登录");
-            return null;
+            return "expired";
         }
         String openid = (String) session.getAttribute("openid");
-        return orderService.getAllOrder(openid,pageNum,pageSize);
+        Page<Order> myOrder = orderService.getAllOrder(openid, pageNum, pageSize);
+        return JsonUtils.toJson(myOrder);
     }
 
     /**
