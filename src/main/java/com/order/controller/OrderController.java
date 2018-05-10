@@ -1,7 +1,6 @@
 package com.order.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.util.MySessionListener;
 import com.util.OkHttpUtil;
 import com.order.entity.Order;
 import com.order.service.OrderService;
@@ -11,8 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestBody;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 /**
  * @author 冯志宇 2018/4/13
@@ -21,9 +18,6 @@ import javax.servlet.http.HttpSession;
 public class OrderController {
     @Value("${wxpay.domain}")
     private String domain;
-
-    @Autowired
-    private MySessionListener listener;
 
     @Autowired
     private OrderService orderService;
@@ -42,22 +36,10 @@ public class OrderController {
      * 生成订单
      * */
     @PostMapping(value = "/saveOrder")
-    public String saveOrder(HttpServletResponse response, @RequestBody Order order){
+    public String saveOrder(@RequestBody Order order){
         /**
          * 先生成订单
          * */
-        System.out.println("sessionid  "+order.getSessionid());
-        HttpSession session = listener.getSession(order.getSessionid());
-        if (session==null){
-            return "expired";
-        }
-
-        System.out.println("openid  "+session.getAttribute("openid"));
-        String openid = (String) session.getAttribute("openid");
-        if (openid==null||"".equals(openid)){
-            return "error:opneid can not be null";
-        }
-        order.setOpenid(openid);
         Order save = orderService.save(order);
         /**
          * 然后请求支付接口
@@ -77,20 +59,13 @@ public class OrderController {
      * 我的全部订单,根据openid查询我的订单
      * @param pageNum 当前页
      * @param pageSize 每页条数
-     * @param sessionid 会话标识
+     * @param openid 用户的唯一标识
      * */
-    @GetMapping(value = "/getAllOrderByOpenid/{pageNum}/{pageSize}/{sessionid}")
-    public String getAllOrder(@PathVariable("pageNum")int pageNum,
+    @GetMapping(value = "/getAllOrderByOpenid/{pageNum}/{pageSize}/{openid}")
+    public Page<Order> getAllOrder(@PathVariable("pageNum")int pageNum,
                                    @PathVariable("pageSize")int pageSize,
-                                   @PathVariable("sessionid") String sessionid){
-        //根据sessionid取出当前用户的会话，并获取openid
-        HttpSession session = listener.getSession(sessionid);
-        if (session==null){
-            return "expired";
-        }
-        String openid = (String) session.getAttribute("openid");
-        Page<Order> myOrder = orderService.getAllOrder(openid, pageNum, pageSize);
-        return JsonUtils.toJson(myOrder);
+                                   @PathVariable("openid") String openid){
+        return orderService.getAllOrder(openid, pageNum, pageSize);
     }
 
     /**

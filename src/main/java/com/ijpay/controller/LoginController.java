@@ -45,16 +45,12 @@ public class LoginController {
         System.out.println("响应信息"+respMsg);
 
         Map maps = (Map) JSON.parse(respMsg);
-        HttpSession session = httpServletRequest.getSession();
-        session.setAttribute("openid",(String)maps.get("openid"));
-        session.setAttribute("session_key",(String)maps.get("session_key"));
-
         /**
          * 把sessionid放在响应头中，返回给前端的，之后前端的每次请求都要带上sessionid
          * 以维护会话状态，因为小程序跟浏览器不一样，好像没有cookie
          * */
         httpServletResponse.setHeader("openid",(String)maps.get("openid"));
-        httpServletResponse.setHeader("sessionid",session.getId());
+        httpServletResponse.setHeader("sessionid",httpServletRequest.getSession().getId());
     }
 
     /**
