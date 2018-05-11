@@ -1,0 +1,38 @@
+= 综合服务平台支付系统及订单系统文档
+作者 <冯志宇>
+v1.0, 2018-05-11
+:toc: left
+:toclevels: 3
+:toc-title: 目  录
+:doctype: book
+:icons: font
+:operation-http-request-title: Http 请求
+:operation-request-parameters-title: 请求参数说明
+:operation-request-fields-title: 请求参数说明
+:operation-http-response-title: Http 响应
+:operation-response-fields-title: Http 响应字段说明
+
+[[resources-restful-order-profile]]
+== 1、OrderController
+
+=== 1.1、已支付订单 列表
+
+operation::restful-order-profile[snippets='http-request,http-response,response-body']
+*响应字段说明*
+
+|===
+| 字段 | 类型 | 解释
+
+| orderNo
+| String
+| 订单编号
+
+| orderStatus
+| int
+| 订单状态,0未支付,1已取消,2已支付
+
+|===
+
+=== 1.2、添加订单接口
+
+operation::restful-order-save[snippets='http-request,http-response,response-body']

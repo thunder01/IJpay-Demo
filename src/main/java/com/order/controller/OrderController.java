@@ -22,16 +22,6 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    @GetMapping("/test")
-    public boolean test(){
-        Order order=new Order();
-        order.setMachineNo("123345678");
-        order.setOpenid("1240000000");
-        order.setChargeId(100);
-        boolean flag = orderService.updateOrderStatus(8,2);
-        return flag;
-    }
-
     /**
      * 生成订单
      * */

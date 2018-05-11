@@ -18,6 +18,7 @@
 		<relativePath />
 	</parent>
 
+	<!--可以在这指定自己想要的jar包版本，默认springboot定义的版本-->
 	<properties>
 		<ijapy.version>0.9</ijapy.version>
 		<zxing.version>3.2.1</zxing.version>
@@ -25,6 +26,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
+		<spring-restdocs.version>1.2.1.RELEASE</spring-restdocs.version>
 	</properties>
 
 	<dependencies>
@@ -173,6 +175,7 @@
 		<dependency>
 			<groupId>org.springframework.restdocs</groupId>
 			<artifactId>spring-restdocs-mockmvc</artifactId>
+			<scope>test</scope>
 		</dependency>
 
 		<!-- httpclient 依赖 -->
@@ -190,6 +193,19 @@
 				<configuration>
 					<fork>true</fork>
                     <includeSystemScope>true</includeSystemScope>
+				</configuration>
+			</plugin>
+
+			<!--单元测试-->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<skipTests>false</skipTests>
+					<!--运行单元测试时自动生成文档片段-->
+					<includes>
+						<include>**/*ControllerTest.java</include>
+					</includes>
 				</configuration>
 			</plugin>
 
@@ -222,6 +238,60 @@
 					<failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
             </plugin>
+
+			<!--restdoc文档生成插件-->
+			<!--Asciidoctor plugin-->
+			<plugin>
+				<groupId>org.asciidoctor</groupId>
+				<artifactId>asciidoctor-maven-plugin</artifactId>
+				<version>1.5.3</version>
+				<executions>
+					<execution>
+						<id>generate-docs</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>process-asciidoc</goal>
+						</goals>
+						<configuration>
+							<backend>html</backend>
+							<doctype>book</doctype>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.springframework.restdocs</groupId>
+						<artifactId>spring-restdocs-asciidoctor</artifactId>
+						<version>${spring-restdocs.version}</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+
+			<!--将输出的文档打包进输出的jar包或war包里-->
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>
+								${project.build.outputDirectory}/static/docs
+							</outputDirectory>
+							<resources>
+								<resource>
+									<directory>
+										${project.build.directory}/generated-docs
+									</directory>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
