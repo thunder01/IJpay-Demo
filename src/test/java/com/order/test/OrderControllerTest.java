@@ -7,7 +7,6 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import java.util.HashMap;
 import java.util.Map;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -38,7 +37,6 @@ public class OrderControllerTest extends SpringRestDocApplicationTests {
 
         mockMvc.perform(requestBuilder)
                 .andExpect(status().isOk())
-                .andDo(MockMvcResultHandlers.print())
                 .andDo(document("restful-order-profile",
                         /**关于请求参数生成文档
                          * restful传参参数用pathParameters
@@ -83,7 +81,7 @@ public class OrderControllerTest extends SpringRestDocApplicationTests {
      * 测试保存订单的接口
      * @throws Exception
      */
-    //@Test
+    @Test
     public void saveOrderTest() throws Exception{
         /**请求参数*/
         Map<String, Object> map = new HashMap<>();
@@ -114,9 +112,58 @@ public class OrderControllerTest extends SpringRestDocApplicationTests {
                                 fieldWithPath("energySum").description("总电量"),
                                 fieldWithPath("orderSum").description("订单金额"),
                                 fieldWithPath("openBill").description("是否开发票")
-                        ),
-                        responseFields(
-                                fieldWithPath("").description("")
                         )));
+    }
+
+    /**
+     * 测试查询我的全部订单接口
+     * @throws Exception
+     */
+    @Test
+    public void getAllOrderByOpenidTest() throws Exception{
+        MockHttpServletRequestBuilder requestBuilder =
+                RestDocumentationRequestBuilders.get("/getAllOrderByOpenid/{pageNum}/{pageSize}/{openid}", 1, 10, "o7VNc5Ri-CX8_FEP37tgw-iE9YXw");
+
+        mockMvc.perform(requestBuilder).
+                andExpect(status().isOk())
+                .andDo(document("restful-order-list"));
+    }
+
+    /**
+     * 测试根据id查询订单的接口
+     * @throws Exception
+     */
+    @Test
+    public void getOrderByIdTest() throws Exception{
+        MockHttpServletRequestBuilder requestBuilder =
+                RestDocumentationRequestBuilders.get("/getOrderById/{id}", 25);
+
+        mockMvc.perform(requestBuilder)
+                .andExpect(status().isOk())
+                .andDo(document("restful-order-getbyid"));
+    }
+
+    /**
+     * 测试修改订单状态的接口
+     * @throws Exception
+     */
+    @Test
+    public void editStatusTest() throws Exception{
+        /**构建请求*/
+        Map<String,Object> param=new HashMap();
+        param.put("id",25);
+        param.put("orderStatus",2);
+
+        MockHttpServletRequestBuilder requestBuilder =
+                RestDocumentationRequestBuilders.post("/editStatus")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JSONObject.toJSON(param).toString());
+
+        /**mockMvc执行post请求*/
+        mockMvc.perform(requestBuilder)
+                .andExpect(status().isOk())
+                .andDo(document("restful-order-editstatus"));
+
     }
 }
