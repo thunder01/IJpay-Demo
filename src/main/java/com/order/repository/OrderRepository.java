@@ -14,9 +14,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface OrderRepository extends PagingAndSortingRepository<Order,Long> {
     /**
-     * 按订单状态查找
+     * 按订单状态查找某个用户的订单
      * */
-    Page<Order> findByOrderStatus(int status, Pageable page);
+    Page<Order> findByOpenidAndOrderStatus(String openid,int status, Pageable page);
 
     /**
      * 查询我的订单

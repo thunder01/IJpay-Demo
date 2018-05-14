@@ -59,17 +59,19 @@ public class OrderController {
     }
 
     /**
-     * 根据状态查询订单，查询已取消订单或已完成订单
+     * 根据状态查询我的订单，查询已取消订单或已完成订单
      * @param pageNum 当前页数
      * @param pageSize 每页条数
+     * @param openid
      * @param status 订单状态值
      * @return
      */
-    @GetMapping(value = "/getByStatus/{pageNum}/{pageSize}/{status}")
+    @GetMapping(value = "/getByStatus/{pageNum}/{pageSize}/{openid}/{status}")
     public Page<Order> getByStatus(@PathVariable("pageNum")int pageNum,
                                    @PathVariable("pageSize")int pageSize,
+                                   @PathVariable("openid") String openid,
                                    @PathVariable("status") int status){
-        return orderService.getByOrderStatus(pageNum,pageSize,status);
+        return orderService.getByOrderStatus(pageNum,pageSize,openid,status);
     }
 
     /**

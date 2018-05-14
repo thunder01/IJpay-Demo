@@ -44,7 +44,7 @@ public interface OrderService {
      * @param status 0：未付款；1：已取消；2：已付款；3：退款申请；4：已完成
      * @return
      */
-    Page<Order> getByOrderStatus(int pageNum,int pageSize,int status);
+    Page<Order> getByOrderStatus(int pageNum,int pageSize,String opneid,int status);
 
     /**
      * 根据订单号查询订单信息
