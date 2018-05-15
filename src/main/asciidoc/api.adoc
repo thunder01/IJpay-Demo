@@ -15,6 +15,22 @@ v1.0, 2018-05-11
 :operation-response-fields-title: Http 响应字段说明
 :operation-links-title: 相关链接
 
-==== 1.1、我的订单 列表
+==== 1、按照状态查找我的订单
 
 operation::restful-order-profile[snippets='http-request,path-parameters,http-response,response-fields']
+
+==== 2、添加订单
+
+operation::restful-order-save[snippets='http-request,request-fields,http-response,response-fields']
+
+==== 3、我的订单
+
+operation::restful-order-list[snippets='http-request,path-parameters,http-response,response-fields']
+
+==== 4、根据id查询订单
+
+operation::restful-order-getbyid[snippets='http-request,path-parameters,http-response,response-fields']
+
+==== 5、修改订单状态
+
+operation::restful-order-editstatus[snippets='http-request,request-fields,http-response']
