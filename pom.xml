@@ -6,7 +6,7 @@
 	<groupId>com.ijpay</groupId>
 	<artifactId>IJPay-Demo</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 
 	<name>IJPay-Demo</name>
 	<description>Demo project for IJPay</description>
@@ -39,12 +39,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 			<!-- 如果是打war发布到tomcat 需要打开下面的注释 移除嵌入式tomcat插件-->
-			<exclusions>
+			<!--<exclusions>
 				<exclusion>
 					<groupId>org.springframework.boot</groupId>
 					<artifactId>spring-boot-starter-tomcat</artifactId>
 				</exclusion>
-			</exclusions>
+			</exclusions>-->
 		</dependency>
 
 		<!--工具包-->
@@ -201,7 +201,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
-					<skipTests>false</skipTests>
+					<skipTests>true</skipTests>
 					<!--运行单元测试时自动生成文档片段-->
 					<includes>
 						<include>**/*ControllerTest.java</include>

@@ -14,16 +14,16 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @ServletComponentScan
 @EnableJpaRepositories(basePackages = "com.order.repository")
 @EntityScan(basePackages = "com.order.entity")
-public class DemoApplication extends SpringBootServletInitializer{
+public class DemoApplication/* extends SpringBootServletInitializer*/{
 
 	public static void main(String[] args) {
 		SpringApplication.run(DemoApplication.class, args);
 	}
 
-    @Override
+    /*@Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
         return builder.sources(DemoApplication.class);
-    }
+    }*/
 
     @Bean
     public StartupRunner startupRunner(){
